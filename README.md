@@ -2,10 +2,10 @@
 # Mini-OLED Workout display
 A small wall-mounted display with input to set and display excersize repetitions per day.
 
-![Kiku](assets/breadboard.jpg)
+![View of breadboard](assets/breadboard.jpg)
 
 ## Setup
-This project depends on the arduino library `Adafruit SSD1306` and it`s dependencies.
+This project depends on the arduino library `Adafruit SSD1306` and its dependencies.
 
 From Arduino IDE library can be added by navigating to the following menu item: Sketch -> Include Library -> Manage Libaries. From here search for `Adafruit SSD1306`, this should prompt to also download `Adafruit GFX Library` and `Adafruit BusIO`; select All or install them manually.
 
@@ -24,3 +24,6 @@ Ideas for what to display on the screen.
  - View history
    - Scroll back needs to fetch & maybe cache results.
    - Loading animation.
+
+## Wiring diagram
+![wiring diagram](assets/wire-diagram.png)
