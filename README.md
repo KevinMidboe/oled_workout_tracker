@@ -7,13 +7,19 @@ A small wall-mounted display with input to set and display excersize repetitions
 ## Setup
 This project depends on the arduino library `Adafruit SSD1306` and its dependencies.
 
-From Arduino IDE library can be added by navigating to the following menu item: Sketch -> Include Library -> Manage Libaries. From here search for `Adafruit SSD1306`, this should prompt to also download `Adafruit GFX Library` and `Adafruit BusIO`; select All or install them manually.
+From Arduino IDE library can be added by navigating to the following menu item: Sketch -> Include Library -> Manage Libaries.  
+From here search for `Adafruit SSD1306`, this should prompt to also download `Adafruit GFX Library` and `Adafruit BusIO`; select All or install them manually.
 
-## Components
-OLED screen - wakes and dims on a timeout.
-Potentiometer - setting value to display based on put input.
+# Features
 
-Either button or time based commit to off-chip db over http.
+## Hardware
+- OLED screen: Displays the current number of repetitions.
+- Potentiometer: Setting value to display.
+- Button: Change from repetition view mode to a menu view using `digitalPinToInterrupt`.
+
+## Software
+ - Timeout: Any pot input has 1 second of timeout since last value change. After timeout runs out the value locks and a value of ± 2 must be read to enable inputs and reset the cooldown.
+ - Menu: Interrupt button toggles menu and view mode, TODO everything else.
 
 ## Graphics
 Ideas for what to display on the screen.
