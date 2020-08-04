@@ -2,6 +2,8 @@
 # Mini-OLED Workout display
 A small wall-mounted display with input to set and display excersize repetitions per day.
 
+![Kiku](assets/breadboard.jpg)
+
 ## Setup
 This project depends on the arduino library `Adafruit SSD1306` and it`s dependencies.
 
