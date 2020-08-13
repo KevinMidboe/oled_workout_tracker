@@ -14,8 +14,7 @@ From here search for `Adafruit SSD1306`, this should prompt to also download `Ad
 
 ## Hardware
 - OLED screen: Displays the current number of repetitions.
-- Potentiometer: Setting value to display.
-- Button: Change from repetition view mode to a menu view using `digitalPinToInterrupt`.
+- Rotary encoder: Count steps in both directions and has a button used to change modes.
 
 ## Software
  - Timeout: Any pot input has 1 second of timeout since last value change. After timeout runs out the value locks and a value of ± 2 must be read to enable inputs and reset the cooldown.
