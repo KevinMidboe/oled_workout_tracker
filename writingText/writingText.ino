@@ -167,12 +167,12 @@ void displayMenu() {
   display.display();
 }
 
-bool beingPressed = false;
-void changeMode() {
-  if (beingPressed == true) {
-    return;
+void displayCounterValue() {
+  if (readEncoderAndUpdateCounter()) {
+    drawPushups(counter);
   }
-  Serial.println("CHANGING MODE");
+  delay(1);
+}
 
 int menuPos = 0;
 void displayMenuSelect() {
@@ -186,9 +186,9 @@ void loop() {
   // displayFromSerialInput();
 
   if (mode == false) {
-    displayNumberWithPotValue();
+    displayCounterValue();
   } else {
     displayMenuSelect();
   }
-  delay(10);
+  checkButtonState();
 }
