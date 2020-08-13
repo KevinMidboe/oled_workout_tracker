@@ -30,25 +30,34 @@
 #define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-#define NUMFLAKES     10 // Number of snowflakes in the animation example
+#define CLK 2
+#define DT 3
+#define SW 4
 
-// input pin definition
-int buttonModePin = 2;
-int potPin = 2;
+int counter = 0;
+int currentStateCLK;
+int lastStateCLK;
+String currentDir ="";
+unsigned long lastButtonPress = 0;
 
+bool mode = false;
 
 void setup() {
   Serial.begin(9600);
 
-  // Setup button interrupt for changing modes
-  pinMode(buttonModePin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(2), changeMode, FALLING);
+  // Set encoder pins as inputs
+  pinMode(CLK,INPUT);
+  pinMode(DT,INPUT);
+  pinMode(SW, INPUT_PULLUP);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x32
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
+
+  // Read the initial state of CLK
+  lastStateCLK = digitalRead(CLK);
 
   // Clear the buffer
   display.clearDisplay();
