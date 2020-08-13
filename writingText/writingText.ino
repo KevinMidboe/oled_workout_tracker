@@ -79,6 +79,34 @@ void displayFromSerialInput() {
   }
 }
 
+
+boolean readEncoderAndUpdateCounter() {
+  currentStateCLK = digitalRead(CLK);
+
+  // If last and current state of CLK are different, then pulse occurred
+  // React to only 1 state change to avoid double count
+  if (currentStateCLK != lastStateCLK  && currentStateCLK == 1){
+
+    // If the DT state is different than the CLK state then
+    // the encoder is rotating CCW so decrement
+    if (digitalRead(DT) != currentStateCLK) {
+      counter --;
+      currentDir ="CCW";
+    } else {
+      // Encoder is rotating CW so increment
+      counter ++;
+      currentDir ="CW";
+    }
+
+    lastStateCLK = currentStateCLK;
+    return true;
+  }
+  lastStateCLK = currentStateCLK;
+
+  return false;
+}
+
+
 void drawHeader(String textToDisplay) {
   display.setTextSize(1);
   display.setCursor(2,0);
