@@ -151,21 +151,13 @@ void checkButtonState() {
 }
 
 String menuLookup[4] = { "daily", "weekly", "goal" };
-
-void displayMenuSelect() {
-  currentPos = analogRead(potPin) / 257; // split in four (1028/4)
-
-  if (pos == currentPos) {
-    return;  
-  }
-
-  pos = currentPos;
+void displayMenu() {
   display.clearDisplay();
   display.setTextSize(1);
   display.setCursor(0,0);
 
   for (int i = 0; i < 4; i++) {
-    if (pos == i) {
+    if (counter == i) {
       display.print("- ");
     } else {
       display.print("  ");  
@@ -182,10 +174,12 @@ void changeMode() {
   }
   Serial.println("CHANGING MODE");
 
-  beingPressed = true;
-  mode = !mode;
-  delay(800);
-  beingPressed = false;
+int menuPos = 0;
+void displayMenuSelect() {
+  if (readEncoderAndUpdateCounter()) {
+    displayMenu();
+  }
+  delay(1);
 }
 
 void loop() {
