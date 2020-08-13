@@ -120,9 +120,6 @@ void drawText(String textToDisplay) {
 }
 
 void drawPushups(int count) {
-  Serial.print("refreshing display w/ value: ");
-  Serial.println(count);
-      
   display.clearDisplay();
   drawHeader("Daily push-ups:");
   drawText(String(count));
