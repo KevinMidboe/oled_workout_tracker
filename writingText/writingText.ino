@@ -126,40 +126,27 @@ void drawPushups(int count) {
   display.display();
 }
 
-int positionBuffer = 10;
-int getPotValue() {
-  return analogRead(potPin) / positionBuffer;
-}
 
+void checkButtonState() {
+  int btnState = digitalRead(SW);
 
-bool mode = false;
+  //If we detect LOW signal, button is pressed
+  if (btnState == LOW) {
+    //if 50ms have passed since last LOW pulse, it means that the
+    //button has been pressed, released and pressed again
+    if (millis() - lastButtonPress > 50) {
+      Serial.println("Button pressed!");
+      mode = !mode;
 
-int pos = 0;
-int currentPos;
-bool active;
-
-unsigned long lastEvent = 0;
-unsigned long currentTime;
-const long timeout = 1000;
-void displayNumberWithPotValue() {
-  currentPos = getPotValue();
-  if (currentPos < pos - 2 || currentPos > pos + 2) {
-    active = true;
-  }
-
-  while (active && mode == false) {
-    currentTime = millis();
-    if (currentTime - lastEvent > timeout) {
-      active = false;
+      if (mode == false) {
+        drawPushups(counter);
+      } else {
+        displayMenu();
+      }
     }
-    
-    currentPos = getPotValue();
-    if (currentPos != pos) {
-      lastEvent = currentTime;
-      pos = currentPos;
-      drawPushups(pos);
-    }
-    delay(10);
+
+    // Remember last button press event
+    lastButtonPress = millis();
   }
 }
 
