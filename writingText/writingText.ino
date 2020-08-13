@@ -30,25 +30,34 @@
 #define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-#define NUMFLAKES     10 // Number of snowflakes in the animation example
+#define CLK 2
+#define DT 3
+#define SW 4
 
-// input pin definition
-int buttonModePin = 2;
-int potPin = 2;
+int counter = 0;
+int currentStateCLK;
+int lastStateCLK;
+String currentDir ="";
+unsigned long lastButtonPress = 0;
 
+bool mode = false;
 
 void setup() {
   Serial.begin(9600);
 
-  // Setup button interrupt for changing modes
-  pinMode(buttonModePin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(2), changeMode, FALLING);
+  // Set encoder pins as inputs
+  pinMode(CLK,INPUT);
+  pinMode(DT,INPUT);
+  pinMode(SW, INPUT_PULLUP);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x32
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
+
+  // Read the initial state of CLK
+  lastStateCLK = digitalRead(CLK);
 
   // Clear the buffer
   display.clearDisplay();
@@ -70,6 +79,34 @@ void displayFromSerialInput() {
   }
 }
 
+
+boolean readEncoderAndUpdateCounter() {
+  currentStateCLK = digitalRead(CLK);
+
+  // If last and current state of CLK are different, then pulse occurred
+  // React to only 1 state change to avoid double count
+  if (currentStateCLK != lastStateCLK  && currentStateCLK == 1){
+
+    // If the DT state is different than the CLK state then
+    // the encoder is rotating CCW so decrement
+    if (digitalRead(DT) != currentStateCLK) {
+      counter --;
+      currentDir ="CCW";
+    } else {
+      // Encoder is rotating CW so increment
+      counter ++;
+      currentDir ="CW";
+    }
+
+    lastStateCLK = currentStateCLK;
+    return true;
+  }
+  lastStateCLK = currentStateCLK;
+
+  return false;
+}
+
+
 void drawHeader(String textToDisplay) {
   display.setTextSize(1);
   display.setCursor(2,0);
@@ -83,68 +120,44 @@ void drawText(String textToDisplay) {
 }
 
 void drawPushups(int count) {
-  Serial.print("refreshing display w/ value: ");
-  Serial.println(count);
-      
   display.clearDisplay();
   drawHeader("Daily push-ups:");
   drawText(String(count));
   display.display();
 }
 
-int positionBuffer = 10;
-int getPotValue() {
-  return analogRead(potPin) / positionBuffer;
-}
 
+void checkButtonState() {
+  int btnState = digitalRead(SW);
 
-bool mode = false;
+  //If we detect LOW signal, button is pressed
+  if (btnState == LOW) {
+    //if 50ms have passed since last LOW pulse, it means that the
+    //button has been pressed, released and pressed again
+    if (millis() - lastButtonPress > 50) {
+      Serial.println("Button pressed!");
+      mode = !mode;
 
-int pos = 0;
-int currentPos;
-bool active;
-
-unsigned long lastEvent = 0;
-unsigned long currentTime;
-const long timeout = 1000;
-void displayNumberWithPotValue() {
-  currentPos = getPotValue();
-  if (currentPos < pos - 2 || currentPos > pos + 2) {
-    active = true;
-  }
-
-  while (active && mode == false) {
-    currentTime = millis();
-    if (currentTime - lastEvent > timeout) {
-      active = false;
+      if (mode == false) {
+        drawPushups(counter);
+      } else {
+        displayMenu();
+      }
     }
-    
-    currentPos = getPotValue();
-    if (currentPos != pos) {
-      lastEvent = currentTime;
-      pos = currentPos;
-      drawPushups(pos);
-    }
-    delay(10);
+
+    // Remember last button press event
+    lastButtonPress = millis();
   }
 }
 
 String menuLookup[4] = { "daily", "weekly", "goal" };
-
-void displayMenuSelect() {
-  currentPos = analogRead(potPin) / 257; // split in four (1028/4)
-
-  if (pos == currentPos) {
-    return;  
-  }
-
-  pos = currentPos;
+void displayMenu() {
   display.clearDisplay();
   display.setTextSize(1);
   display.setCursor(0,0);
 
   for (int i = 0; i < 4; i++) {
-    if (pos == i) {
+    if (counter == i) {
       display.print("- ");
     } else {
       display.print("  ");  
@@ -154,26 +167,28 @@ void displayMenuSelect() {
   display.display();
 }
 
-bool beingPressed = false;
-void changeMode() {
-  if (beingPressed == true) {
-    return;
+void displayCounterValue() {
+  if (readEncoderAndUpdateCounter()) {
+    drawPushups(counter);
   }
-  Serial.println("CHANGING MODE");
+  delay(1);
+}
 
-  beingPressed = true;
-  mode = !mode;
-  delay(800);
-  beingPressed = false;
+int menuPos = 0;
+void displayMenuSelect() {
+  if (readEncoderAndUpdateCounter()) {
+    displayMenu();
+  }
+  delay(1);
 }
 
 void loop() {
   // displayFromSerialInput();
 
   if (mode == false) {
-    displayNumberWithPotValue();
+    displayCounterValue();
   } else {
     displayMenuSelect();
   }
-  delay(10);
+  checkButtonState();
 }
