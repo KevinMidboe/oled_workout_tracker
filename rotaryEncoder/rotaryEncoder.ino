@@ -1,7 +1,7 @@
 // Rotary Encoder Inputs
-#define CLK 2
-#define DT 3
-#define SW 4
+#define CLK 13
+#define DT 12
+#define SW 14
 
 int counter = 0;
 int currentStateCLK;

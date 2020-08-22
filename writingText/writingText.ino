@@ -27,12 +27,24 @@
 #define SCREEN_HEIGHT 32 // OLED display height, in pixels
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
+#if defined(__AVR__)
+    #define OLED_RESET   -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+#elif defined(ESP8266)
+  #define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
+#endif
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-#define CLK 2
-#define DT 3
-#define SW 4
+#if defined(__AVR__)
+  // Arduino for any board with AVR architecture.
+  #define CLK 2
+  #define DT 3
+  #define SW 4
+#elif defined(ESP8266)
+  // ESP8266 Wemos D1
+  #define CLK 13  // D7
+  #define DT 12   // D6
+  #define SW 14   // D5
+#endif
 
 int counter = 0;
 int currentStateCLK;
